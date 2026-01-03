@@ -1,318 +1,473 @@
-# Email to WhatsApp Forwarder
+# Email to WhatsApp Forwarder - Full Stack Application
 
-A Node.js application that automatically fetches emails based on custom filters and forwards them to WhatsApp using the Twilio API.
+Complete web application for managing email-to-WhatsApp forwarding rules with user authentication and dashboard.
 
-## Features
+## 🚀 Features
 
-- ✉️ Connect to email accounts via IMAP (Gmail, Outlook, etc.)
-- 🔍 Filter emails by subject keywords, sender addresses, and timeframe
-- 📱 Forward email content to WhatsApp via Twilio
-- ⏰ Scheduled execution with customizable cron jobs
-- 🛡️ Robust error handling and logging
-- 📎 Attachment detection and notification
-- ☁️ Cloud-ready deployment (Heroku, AWS, etc.)
+- 👤 User authentication (register/login)
+- 📧 Multiple email account support per user
+- 📱 WhatsApp integration via Twilio
+- 🔍 Advanced email filtering (subject, sender, time)
+- 📊 Real-time statistics and logs
+- ⚙️ Individual rule management (create, edit, delete, toggle)
+- 🔐 Encrypted credentials storage
+- ⏰ Customizable scheduling per rule
+- 🎨 Modern React frontend
+- 🔒 JWT-based authentication
 
-## Prerequisites
+## 📋 Prerequisites
 
-1. **Email Account**
-   - Gmail, Outlook, or any IMAP-enabled email provider
-   - App-specific password (for Gmail: [Generate App Password](https://myaccount.google.com/apppasswords))
+1. **Node.js** (v14+)
+2. **PostgreSQL** (v12+)
+3. **Gmail App Password** ([Generate here](https://myaccount.google.com/apppasswords))
+4. **Twilio Account** ([Sign up here](https://www.twilio.com/try-twilio))
 
-2. **Twilio Account**
-   - Sign up at [Twilio](https://www.twilio.com/try-twilio)
-   - Set up WhatsApp Sandbox: [Twilio WhatsApp Sandbox](https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn)
-   - Get your Account SID and Auth Token from the Twilio Console
+## 🛠️ Installation
 
-3. **Node.js**
-   - Version 14.x or higher
-
-## Installation
-
-### 1. Clone the Repository
+### 1. Clone Repository
 
 ```bash
 git clone <repository-url>
 cd email-whatsapp-forwarder
 ```
 
-### 2. Install Dependencies
+### 2. Setup Backend
 
 ```bash
+cd backend
 npm install
 ```
 
-### 3. Configure Environment Variables
-
-Create a `.env` file in the root directory:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your credentials:
+Create `backend/.env`:
 
 ```env
-# Email Configuration
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=your-app-password
-EMAIL_HOST=imap.gmail.com
-EMAIL_PORT=993
-EMAIL_TLS=true
-
-# Email Filters (comma-separated)
-FILTER_SUBJECTS=urgent,important
-FILTER_SENDERS=john.doe@example.com,jane.smith@example.com
-FILTER_HOURS=24
-
-# Twilio Configuration
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_auth_token
-WHATSAPP_SENDER_PHONE=whatsapp:+14155238886
-WHATSAPP_RECIPIENT_PHONE=whatsapp:+2348100000000
-
-# Cron Schedule (every 10 minutes by default)
-CRON_SCHEDULE=*/10 * * * *
+DATABASE_URL="postgresql://user:password@localhost:5432/email_whatsapp_db"
+PORT=5000
+NODE_ENV=development
+JWT_SECRET=your-super-secret-key-change-this
+JWT_EXPIRES_IN=7d
+FRONTEND_URL=http://localhost:3000
+WORKER_CRON_SCHEDULE=*/5 * * * *
+ENCRYPTION_KEY=your-32-character-encryption-key
 ```
 
-### 4. Build the Application
+### 3. Setup Database
 
 ```bash
-npm run build
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate dev --name init
+
+# (Optional) Open Prisma Studio to view database
+npx prisma studio
 ```
 
-## Usage
-
-### Run Once (Development)
+### 4. Setup Frontend
 
 ```bash
+cd ../frontend
+npm install
+```
+
+Create `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+## 🎯 Running the Application
+
+### Development Mode
+
+**Terminal 1 - Backend API:**
+```bash
+cd backend
 npm run dev
 ```
 
-### Run with Scheduler
+**Terminal 2 - Background Worker:**
+```bash
+cd backend
+npm run worker
+```
+
+**Terminal 3 - Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+Access the application at `http://localhost:3000`
+
+### Production Mode
+
+**Build Backend:**
+```bash
+cd backend
+npm run build
+```
+
+**Build Frontend:**
+```bash
+cd frontend
+npm run build
+```
+
+**Run with PM2:**
+```bash
+# Install PM2
+npm install -g pm2
+
+# Start API server
+pm2 start dist/server.js --name api
+
+# Start worker
+pm2 start dist/worker.js --name worker
+
+# Serve frontend (using a static server)
+pm2 start npx --name frontend -- serve -s dist -l 3000
+
+# Save configuration
+pm2 save
+pm2 startup
+```
+
+## 📦 Database Schema
+
+### Users Table
+- `id` (UUID, Primary Key)
+- `email` (Unique)
+- `password` (Hashed)
+- `name`
+- `createdAt`, `updatedAt`
+
+### ForwardingRules Table
+- `id` (UUID, Primary Key)
+- `userId` (Foreign Key → Users)
+- `name`
+- `isActive` (Boolean)
+- Email config: `emailUser`, `emailPassword` (encrypted), `emailHost`, `emailPort`, `emailTls`
+- Filters: `filterSubjects[]`, `filterSenders[]`, `filterHours`
+- Twilio config: `twilioAccountSid`, `twilioAuthToken` (encrypted), `whatsappSender`, `whatsappRecipient`
+- `cronSchedule`
+- `createdAt`, `updatedAt`
+
+### ForwardingLogs Table
+- `id` (UUID, Primary Key)
+- `userId`, `ruleId` (Foreign Keys)
+- `emailSubject`, `emailFrom`, `emailDate`
+- `status` ('success' | 'failed')
+- `error` (nullable)
+- `createdAt`
+
+## 🔐 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login
+- `GET /api/auth/profile` - Get user profile (protected)
+
+### Forwarding Rules
+- `POST /api/rules` - Create rule (protected)
+- `GET /api/rules` - Get all user's rules (protected)
+- `GET /api/rules/:id` - Get specific rule (protected)
+- `PUT /api/rules/:id` - Update rule (protected)
+- `DELETE /api/rules/:id` - Delete rule (protected)
+- `PATCH /api/rules/:id/toggle` - Toggle active status (protected)
+
+### Logs
+- `GET /api/logs` - Get forwarding logs (protected)
+- `GET /api/logs/stats` - Get statistics (protected)
+- `DELETE /api/logs` - Clear logs (protected)
+
+## 🔧 Configuration Guide
+
+### Gmail Setup
+
+1. **Enable IMAP:**
+   - Gmail Settings → Forwarding and POP/IMAP
+   - Enable IMAP
+
+2. **Generate App Password:**
+   - Google Account → Security → 2-Step Verification (enable)
+   - App Passwords → Generate password
+   - Use this 16-character password in the form
+
+### Twilio WhatsApp Setup
+
+1. **Activate Sandbox:**
+   - Twilio Console → Messaging → Try it out → WhatsApp
+   - Send join message to Twilio number from your WhatsApp
+
+2. **Get Credentials:**
+   - Account SID: Dashboard
+   - Auth Token: Dashboard (click "Show")
+   - Sender: `whatsapp:+14155238886`
+   - Recipient: `whatsapp:+[your number with country code]`
+
+### Creating Your First Rule
+
+1. Register/Login
+2. Click "New Rule"
+3. Fill in all fields:
+   - **Name**: "Work Emails"
+   - **Email**: your-email@gmail.com
+   - **App Password**: 16-char Gmail app password
+   - **Filter Subjects**: urgent,important
+   - **Filter Senders**: boss@company.com
+   - **Twilio SID**: AC...
+   - **Twilio Token**: your auth token
+   - **WhatsApp Sender**: whatsapp:+14155238886
+   - **Your WhatsApp**: whatsapp:+1234567890
+4. Click "Save Rule"
+
+The worker will automatically start checking this email account!
+
+## 🚀 Deployment
+
+### Heroku Deployment
+
+**1. Prepare for Deployment:**
+
+Create `Procfile` in root:
+```
+web: cd backend && npm start
+worker: cd backend && node dist/worker.js
+```
+
+**2. Deploy:**
 
 ```bash
-npm start
+# Login to Heroku
+heroku login
+
+# Create app
+heroku create your-app-name
+
+# Add PostgreSQL
+heroku addons:create heroku-postgresql:mini
+
+# Set environment variables
+heroku config:set JWT_SECRET=your-secret
+heroku config:set ENCRYPTION_KEY=your-key
+heroku config:set FRONTEND_URL=https://your-app.herokuapp.com
+
+# Deploy
+git push heroku main
+
+# Run migrations
+heroku run npx prisma migrate deploy
+
+# Scale dynos
+heroku ps:scale web=1 worker=1
+
+# View logs
+heroku logs --tail
 ```
 
-The application will:
-1. Run immediately on startup
-2. Continue running based on the cron schedule
-3. Check for new emails matching your filters
-4. Forward matching emails to WhatsApp
+**3. Deploy Frontend:**
 
-## Configuration Details
-
-### Email Filters
-
-- **FILTER_SUBJECTS**: Comma-separated keywords (case-insensitive)
-  - Example: `urgent,important,action required`
-  - Leave empty to disable subject filtering
-
-- **FILTER_SENDERS**: Comma-separated email addresses
-  - Example: `boss@company.com,client@business.com`
-  - Leave empty to disable sender filtering
-
-- **FILTER_HOURS**: Time window for fetching emails
-  - Example: `24` (last 24 hours)
-  - Default: 24
-
-### Cron Schedule Format
-
-The `CRON_SCHEDULE` uses standard cron syntax:
-
-```
-* * * * *
-│ │ │ │ │
-│ │ │ │ └─── Day of week (0-7, Sunday = 0 or 7)
-│ │ │ └───── Month (1-12)
-│ │ └─────── Day of month (1-31)
-│ └───────── Hour (0-23)
-└─────────── Minute (0-59)
+Option A - Same Heroku app:
+```bash
+# Build frontend and serve from backend
+cd frontend
+npm run build
+# Copy dist/ to backend/public/
 ```
 
-**Examples:**
-- `*/10 * * * *` - Every 10 minutes
-- `0 * * * *` - Every hour
-- `0 9 * * *` - Every day at 9 AM
-- `0 9,17 * * *` - Every day at 9 AM and 5 PM
+Option B - Separate deployment (Vercel/Netlify):
+```bash
+cd frontend
+npm run build
+# Deploy dist/ folder
+# Update FRONTEND_URL in backend
+```
 
-## Gmail Setup
+### AWS Deployment
 
-### Enable IMAP
+**1. EC2 Setup:**
 
-1. Go to Gmail Settings → See all settings
-2. Click the "Forwarding and POP/IMAP" tab
-3. Enable IMAP
-4. Save changes
+```bash
+# Launch Ubuntu instance
+# SSH into instance
+ssh -i your-key.pem ubuntu@your-instance-ip
 
-### Generate App Password
+# Install dependencies
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs postgresql
 
-1. Go to [Google Account Security](https://myaccount.google.com/security)
-2. Enable 2-Step Verification
-3. Go to [App Passwords](https://myaccount.google.com/apppasswords)
-4. Select "Mail" and "Other (Custom name)"
-5. Copy the 16-character password
-6. Use this password in `EMAIL_PASSWORD`
+# Setup PostgreSQL
+sudo -u postgres createdb email_whatsapp_db
+sudo -u postgres psql -c "CREATE USER dbuser WITH PASSWORD 'password';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE email_whatsapp_db TO dbuser;"
+```
 
-## Twilio WhatsApp Setup
+**2. Deploy Application:**
 
-### 1. Activate WhatsApp Sandbox
+```bash
+# Clone and setup
+git clone <repo>
+cd email-whatsapp-forwarder
 
-1. Log in to [Twilio Console](https://console.twilio.com/)
-2. Navigate to Messaging → Try it out → Send a WhatsApp message
-3. Follow instructions to join the sandbox
-4. Send the provided code to the Twilio WhatsApp number
+# Backend
+cd backend
+npm install
+npm run build
+npx prisma migrate deploy
 
-### 2. Get Credentials
+# Frontend
+cd ../frontend
+npm install
+npm run build
 
-- **Account SID**: Found in your Twilio Console dashboard
-- **Auth Token**: Found in your Twilio Console dashboard (click "Show" to reveal)
-- **Sender Phone**: `whatsapp:+14155238886` (Twilio sandbox number)
-- **Recipient Phone**: Format as `whatsapp:+[country code][number]`
+# Install PM2
+sudo npm install -g pm2
 
-## Deployment
+# Start services
+cd ../backend
+pm2 start dist/server.js --name api
+pm2 start dist/worker.js --name worker
 
-### Heroku
+# Nginx for frontend
+sudo apt install nginx
+# Configure nginx to serve frontend/dist
+```
 
-1. **Install Heroku CLI**
-   ```bash
-   npm install -g heroku
-   ```
+### Docker Deployment
 
-2. **Login to Heroku**
-   ```bash
-   heroku login
-   ```
+Create `docker-compose.yml`:
 
-3. **Create Heroku App**
-   ```bash
-   heroku create your-app-name
-   ```
+```yaml
+version: '3.8'
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: email_whatsapp_db
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-4. **Set Environment Variables**
-   ```bash
-   heroku config:set EMAIL_USER=your-email@gmail.com
-   heroku config:set EMAIL_PASSWORD=your-app-password
-   heroku config:set TWILIO_ACCOUNT_SID=your-sid
-   heroku config:set TWILIO_AUTH_TOKEN=your-token
-   # ... set all other variables
-   ```
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://dbuser:password@postgres:5432/email_whatsapp_db
+      JWT_SECRET: your-secret
+      ENCRYPTION_KEY: your-key
+    depends_on:
+      - postgres
 
-5. **Deploy**
-   ```bash
-   git push heroku main
-   ```
+  worker:
+    build: ./backend
+    command: node dist/worker.js
+    environment:
+      DATABASE_URL: postgresql://dbuser:password@postgres:5432/email_whatsapp_db
+      ENCRYPTION_KEY: your-key
+    depends_on:
+      - postgres
 
-6. **Scale Worker**
-   ```bash
-   heroku ps:scale worker=1
-   ```
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
-7. **View Logs**
-   ```bash
-   heroku logs --tail
-   ```
+volumes:
+  postgres_data:
+```
 
-### AWS (EC2)
+Run: `docker-compose up -d`
 
-1. **Launch EC2 Instance**
-   - Choose Ubuntu Server
-   - Configure security groups
+## 🔍 Troubleshooting
 
-2. **SSH into Instance**
-   ```bash
-   ssh -i your-key.pem ubuntu@your-instance-ip
-   ```
+### Email Connection Issues
+- Verify IMAP is enabled
+- Check app password (not regular password)
+- Ensure less secure apps is enabled (if needed)
+- Check firewall settings
 
-3. **Install Node.js**
-   ```bash
-   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-   sudo apt-get install -y nodejs
-   ```
+### WhatsApp Not Receiving
+- Verify Twilio sandbox activation
+- Check phone number format: `whatsapp:+[country][number]`
+- Ensure you've sent the join message
 
-4. **Clone and Setup**
-   ```bash
-   git clone <repository-url>
-   cd email-whatsapp-forwarder
-   npm install
-   npm run build
-   ```
+### Database Connection Failed
+- Check DATABASE_URL format
+- Verify PostgreSQL is running
+- Check firewall/security groups
 
-5. **Create .env File**
-   ```bash
-   nano .env
-   # Paste your configuration
-   ```
+### Worker Not Processing Rules
+- Check worker logs: `pm2 logs worker`
+- Verify cron schedule format
+- Ensure rules are set to "Active"
 
-6. **Run with PM2**
-   ```bash
-   sudo npm install -g pm2
-   pm2 start dist/index.js --name email-forwarder
-   pm2 startup
-   pm2 save
-   ```
+## 📊 Monitoring
 
-## Troubleshooting
+```bash
+# View all processes
+pm2 list
 
-### Authentication Errors
+# View logs
+pm2 logs api
+pm2 logs worker
 
-- **Gmail**: Ensure you're using an app password, not your regular password
-- **Twilio**: Verify your Account SID and Auth Token are correct
+# Monitor resources
+pm2 monit
 
-### No Emails Found
+# Restart services
+pm2 restart api
+pm2 restart worker
+```
 
-- Check your filter configuration
-- Verify emails exist in the specified timeframe
-- Ensure emails are unread (the app only processes unseen emails)
+## 🔒 Security Best Practices
 
-### WhatsApp Not Receiving Messages
+1. **Environment Variables**: Never commit `.env` files
+2. **Passwords**: Use strong, unique passwords
+3. **JWT Secret**: Use a long, random string
+4. **Encryption Key**: Generate with `openssl rand -hex 32`
+5. **HTTPS**: Always use HTTPS in production
+6. **Rate Limiting**: Add rate limiting to API endpoints
+7. **Input Validation**: All inputs are validated
+8. **SQL Injection**: Prisma provides protection
+9. **XSS Protection**: React provides automatic escaping
 
-- Verify you've joined the Twilio WhatsApp Sandbox
-- Check phone number format: `whatsapp:+[country code][number]`
-- Review Twilio logs in the console
+## 📈 Scaling Considerations
 
-### IMAP Connection Issues
+1. **Database**: Use connection pooling
+2. **Worker**: Can run multiple instances with different rule batches
+3. **Caching**: Add Redis for session management
+4. **Load Balancing**: Use nginx for multiple backend instances
+5. **Monitoring**: Add Sentry or similar for error tracking
 
-- Verify IMAP is enabled in your email account
-- Check host and port settings
-- Ensure firewall isn't blocking the connection
-
-## Security Best Practices
-
-1. **Never commit `.env` file** to version control
-2. **Use environment variables** for all credentials
-3. **Rotate credentials** regularly
-4. **Limit email permissions** to read-only if possible
-5. **Monitor Twilio usage** to prevent unauthorized access
-
-## Limitations
-
-- WhatsApp messages are limited to 1600 characters
-- Email attachments are listed but not sent (Twilio limitation)
-- Free Twilio accounts have usage limits
-- Gmail app passwords require 2-factor authentication
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+2. Create feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -am 'Add feature'`
+4. Push to branch: `git push origin feature-name`
+5. Submit pull request
 
-## License
+## 📄 License
 
-MIT License - feel free to use this project for personal or commercial purposes.
+MIT License - free to use for personal or commercial projects.
 
-## Support
+## 🆘 Support
 
-For issues and questions:
-- Check the [Troubleshooting](#troubleshooting) section
-- Review [Twilio Documentation](https://www.twilio.com/docs/whatsapp)
-- Open an issue on GitHub
+- Check troubleshooting section
+- Review API documentation
+- Open GitHub issue
+- Check Twilio/Gmail documentation
 
-## Acknowledgments
+## 🎉 Acknowledgments
 
-- Built with [Node.js](https://nodejs.org/)
-- Email processing by [node-imap](https://github.com/mscdex/node-imap)
-- WhatsApp integration via [Twilio](https://www.twilio.com/)
+- React + TypeScript
+- Express.js
+- Prisma ORM
+- Twilio API
+- node-imap
