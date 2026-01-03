@@ -29,9 +29,3 @@ export function decryptPassword(text: string): string {
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   return decrypted.toString();
 }
-
-// Example usage:
-// const encrypted = encryptPassword('mySecretPassword');
-// const decrypted = decryptPassword(encrypted);
-// console.log('Encrypted:', encrypted);
-// console.log('Decrypted:', decrypted);
