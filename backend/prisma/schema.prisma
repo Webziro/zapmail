@@ -3,12 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
+
+  id String @id @default(uuid()) @map("_id")
   email     String   @unique
   password  String
   name      String
@@ -20,7 +21,8 @@ model User {
 }
 
 model ForwardingRule {
-  id          String   @id @default(uuid())
+  id String @id @default(uuid()) @map("_id")
+
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
@@ -57,7 +59,7 @@ model ForwardingRule {
 }
 
 model ForwardingLog {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid()) @map("_id")
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
