@@ -7,6 +7,11 @@ import Dashboard from './pages/Dashboard';
 function App() {
   const isAuthenticated = !!localStorage.getItem('token');
 
+  console.log('🔐 App rendering...');
+  console.log('📍 Current path:', window.location.pathname);
+  console.log('🔑 Token in localStorage:', localStorage.getItem('token'));
+  console.log('✅ isAuthenticated:', isAuthenticated);
+
   return (
     <>
       <Toaster position="top-right" />
