@@ -29,8 +29,8 @@ const Register: React.FC = () => {
     }
   };
 
-  // Increased padding (py-4) and adjusted border opacity
-  const inputStyles = `w-full pl-11 pr-4 py-4 rounded-xl transition-all focus:outline-none focus:ring-2 border ${isDarkMode
+  // Increased padding (py-4, pl-12) to prevent icon overlap
+  const inputStyles = `w-full pl-12 pr-4 py-4 rounded-xl transition-all focus:outline-none focus:ring-2 border ${isDarkMode
       ? 'bg-[#262626] border-[#3a3a3a] text-white placeholder-gray-500 focus:ring-white/50'
       : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-gray-900/20'
     }`;
@@ -75,7 +75,7 @@ const Register: React.FC = () => {
             </div>
 
             {/* Form Card */}
-            <div className={`rounded-2xl p-6 sm:p-8 ${isDarkMode
+            <div className={`rounded-2xl p-10 sm:p-8 ${isDarkMode
                 ? 'bg-[#1a1a1a] border border-[#2e2e2e]'
                 : 'bg-white shadow-xl border border-gray-100'
               }`}>
@@ -85,13 +85,13 @@ const Register: React.FC = () => {
                     Full name
                   </label>
                   <div className="relative">
-                    <User className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={20} />
+                    <User className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={20} />
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className={inputStyles}
-                      placeholder="John Doe"
+                      placeholder="Stanley Amaziro"
                       required
                     />
                   </div>
@@ -102,7 +102,7 @@ const Register: React.FC = () => {
                     Email address
                   </label>
                   <div className="relative">
-                    <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={20} />
+                    <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={20} />
                     <input
                       type="email"
                       value={email}
@@ -119,7 +119,7 @@ const Register: React.FC = () => {
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={20} />
+                    <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={20} />
                     <input
                       type="password"
                       value={password}
@@ -164,7 +164,7 @@ const Register: React.FC = () => {
             {/* Footer Link */}
             <p className={`text-center mt-6 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Already have an account?{' '}
-              <Link to="/login" className={`font-medium hover:underline ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              <Link to="/register" className={`font-medium hover:underline ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Sign in
               </Link>
             </p>
