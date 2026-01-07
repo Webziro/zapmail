@@ -50,20 +50,14 @@ router.post(
 );
 
 router.get('/rules', authMiddleware, rulesController.getRules.bind(rulesController));
-
 router.get('/rules/:id', authMiddleware, rulesController.getRule.bind(rulesController));
-
 router.put('/rules/:id', authMiddleware, rulesController.updateRule.bind(rulesController));
-
 router.delete('/rules/:id', authMiddleware, rulesController.deleteRule.bind(rulesController));
-
 router.patch('/rules/:id/toggle', authMiddleware, rulesController.toggleRule.bind(rulesController));
 
 // Logs Routes
 router.get('/logs', authMiddleware, logsController.getLogs.bind(logsController));
-
 router.get('/logs/stats', authMiddleware, logsController.getLogStats.bind(logsController));
-
 router.delete('/logs', authMiddleware, logsController.clearLogs.bind(logsController));
 
 export default router;
