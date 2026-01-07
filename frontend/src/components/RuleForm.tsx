@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Save } from 'lucide-react';
+import { X, Save, Mail, MessageSquare, Clock, Key } from 'lucide-react';
 import { rulesAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -62,224 +62,245 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
     }
   };
 
+  const inputClass = "w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all text-sm";
+  const labelClass = "block text-sm font-medium text-gray-700 mb-2";
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg">
-          <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-2xl font-bold">
+    <div className="min-h-screen bg-[#f8f9fa]">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold text-gray-900">
               {rule ? 'Edit Rule' : 'Create New Rule'}
-            </h2>
+            </h1>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
             >
-              <X size={24} />
+              <X size={20} />
             </button>
           </div>
+        </div>
+      </header>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Rule Name *
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                required
-              />
+      <main className="max-w-4xl mx-auto px-6 py-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Rule Name */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+            <label className={labelClass}>Rule Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className={inputClass}
+              placeholder="My forwarding rule"
+              required
+            />
+          </div>
+
+          {/* Email Configuration */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Mail className="text-gray-500" size={18} />
+              <h2 className="text-base font-semibold text-gray-900">Email Configuration</h2>
             </div>
-
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">Email Configuration</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.emailUser}
-                    onChange={(e) => setFormData({ ...formData, emailUser: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    App Password * {rule && '(leave blank to keep existing)'}
-                  </label>
-                  <input
-                    type="password"
-                    value={formData.emailPassword}
-                    onChange={(e) => setFormData({ ...formData, emailPassword: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required={!rule}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    IMAP Host
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.emailHost}
-                    onChange={(e) => setFormData({ ...formData, emailHost: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    IMAP Port
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.emailPort}
-                    onChange={(e) => setFormData({ ...formData, emailPort: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">Email Filters</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject Keywords (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.filterSubjects}
-                    onChange={(e) => setFormData({ ...formData, filterSubjects: e.target.value })}
-                    placeholder="urgent, important"
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sender Emails (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.filterSenders}
-                    onChange={(e) => setFormData({ ...formData, filterSenders: e.target.value })}
-                    placeholder="boss@company.com, client@business.com"
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Time Window (hours)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.filterHours}
-                    onChange={(e) => setFormData({ ...formData, filterHours: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">WhatsApp Configuration</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Twilio Account SID *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.twilioAccountSid}
-                    onChange={(e) => setFormData({ ...formData, twilioAccountSid: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Twilio Auth Token * {rule && '(leave blank to keep existing)'}
-                  </label>
-                  <input
-                    type="password"
-                    value={formData.twilioAuthToken}
-                    onChange={(e) => setFormData({ ...formData, twilioAuthToken: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required={!rule}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    WhatsApp Sender (Twilio Number) *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.whatsappSender}
-                    onChange={(e) => setFormData({ ...formData, whatsappSender: e.target.value })}
-                    placeholder="whatsapp:+14155238886"
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Your WhatsApp Number *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.whatsappRecipient}
-                    onChange={(e) => setFormData({ ...formData, whatsappRecipient: e.target.value })}
-                    placeholder="whatsapp:+1234567890"
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">Schedule</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cron Schedule
+                <label className={labelClass}>Email Address</label>
+                <input
+                  type="email"
+                  value={formData.emailUser}
+                  onChange={(e) => setFormData({ ...formData, emailUser: e.target.value })}
+                  className={inputClass}
+                  placeholder="you@gmail.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelClass}>
+                  App Password {rule && <span className="text-gray-400 font-normal">(leave blank to keep)</span>}
                 </label>
                 <input
-                  type="text"
-                  value={formData.cronSchedule}
-                  onChange={(e) => setFormData({ ...formData, cronSchedule: e.target.value })}
-                  placeholder="*/10 * * * *"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  type="password"
+                  value={formData.emailPassword}
+                  onChange={(e) => setFormData({ ...formData, emailPassword: e.target.value })}
+                  className={inputClass}
+                  placeholder="••••••••••••"
+                  required={!rule}
                 />
-                <p className="text-sm text-gray-500 mt-1">
-                  Default: Every 10 minutes (*/10 * * * *)
-                </p>
+              </div>
+              <div>
+                <label className={labelClass}>IMAP Host</label>
+                <input
+                  type="text"
+                  value={formData.emailHost}
+                  onChange={(e) => setFormData({ ...formData, emailHost: e.target.value })}
+                  className={inputClass}
+                  placeholder="imap.gmail.com"
+                />
+              </div>
+              <div>
+                <label className={labelClass}>IMAP Port</label>
+                <input
+                  type="number"
+                  value={formData.emailPort}
+                  onChange={(e) => setFormData({ ...formData, emailPort: parseInt(e.target.value) })}
+                  className={inputClass}
+                />
               </div>
             </div>
+          </div>
 
-            <div className="flex justify-end gap-3 pt-6 border-t">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-6 py-2 border rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                <Save size={20} />
-                {loading ? 'Saving...' : 'Save Rule'}
-              </button>
+          {/* Email Filters */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <svg className="w-[18px] h-[18px] text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              <h2 className="text-base font-semibold text-gray-900">Email Filters</h2>
             </div>
-          </form>
-        </div>
-      </div>
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>Subject Keywords <span className="text-gray-400 font-normal">(comma-separated)</span></label>
+                <input
+                  type="text"
+                  value={formData.filterSubjects}
+                  onChange={(e) => setFormData({ ...formData, filterSubjects: e.target.value })}
+                  placeholder="urgent, important, invoice"
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Sender Emails <span className="text-gray-400 font-normal">(comma-separated)</span></label>
+                <input
+                  type="text"
+                  value={formData.filterSenders}
+                  onChange={(e) => setFormData({ ...formData, filterSenders: e.target.value })}
+                  placeholder="boss@company.com, client@business.com"
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Time Window (hours)</label>
+                <input
+                  type="number"
+                  value={formData.filterHours}
+                  onChange={(e) => setFormData({ ...formData, filterHours: parseInt(e.target.value) })}
+                  className={inputClass}
+                />
+                <p className="text-xs text-gray-400 mt-1.5">Only process emails from the last N hours</p>
+              </div>
+            </div>
+          </div>
+
+          {/* WhatsApp Configuration */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <MessageSquare className="text-gray-500" size={18} />
+              <h2 className="text-base font-semibold text-gray-900">WhatsApp Configuration</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Twilio Account SID</label>
+                <input
+                  type="text"
+                  value={formData.twilioAccountSid}
+                  onChange={(e) => setFormData({ ...formData, twilioAccountSid: e.target.value })}
+                  className={inputClass}
+                  placeholder="ACxxxxxxxxxxxxxxxx"
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelClass}>
+                  Twilio Auth Token {rule && <span className="text-gray-400 font-normal">(leave blank to keep)</span>}
+                </label>
+                <input
+                  type="password"
+                  value={formData.twilioAuthToken}
+                  onChange={(e) => setFormData({ ...formData, twilioAuthToken: e.target.value })}
+                  className={inputClass}
+                  placeholder="••••••••••••"
+                  required={!rule}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>WhatsApp Sender (Twilio)</label>
+                <input
+                  type="text"
+                  value={formData.whatsappSender}
+                  onChange={(e) => setFormData({ ...formData, whatsappSender: e.target.value })}
+                  placeholder="whatsapp:+14155238886"
+                  className={inputClass}
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Your WhatsApp Number</label>
+                <input
+                  type="text"
+                  value={formData.whatsappRecipient}
+                  onChange={(e) => setFormData({ ...formData, whatsappRecipient: e.target.value })}
+                  placeholder="whatsapp:+1234567890"
+                  className={inputClass}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Schedule */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Clock className="text-gray-500" size={18} />
+              <h2 className="text-base font-semibold text-gray-900">Schedule</h2>
+            </div>
+            <div>
+              <label className={labelClass}>Cron Schedule</label>
+              <input
+                type="text"
+                value={formData.cronSchedule}
+                onChange={(e) => setFormData({ ...formData, cronSchedule: e.target.value })}
+                placeholder="*/10 * * * *"
+                className={inputClass}
+              />
+              <p className="text-xs text-gray-400 mt-1.5">Default: Every 10 minutes (*/10 * * * *)</p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2.5 text-gray-700 bg-white border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition-all text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 disabled:opacity-50 transition-all text-sm"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={16} />
+                  Save Rule
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </main>
     </div>
   );
 };
