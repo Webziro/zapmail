@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Save, Mail, MessageSquare, Clock, Key } from 'lucide-react';
+import { X, Save, Mail, MessageSquare, Clock } from 'lucide-react';
 import { rulesAPI } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 
 interface RuleFormProps {
@@ -9,6 +10,7 @@ interface RuleFormProps {
 }
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
+  const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({
     name: rule?.name || '',
     emailUser: rule?.emailUser || '',
@@ -62,21 +64,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
     }
   };
 
-  const inputClass = "w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all text-sm";
-  const labelClass = "block text-sm font-medium text-gray-700 mb-2";
+  const inputClass = `w-full px-4 py-2.5 rounded-xl transition-all focus:outline-none focus:ring-2 text-sm border ${isDarkMode
+      ? 'bg-[#262626] border-[#3a3a3a] text-white placeholder-gray-500 focus:ring-white focus:border-transparent'
+      : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-gray-900 focus:border-transparent'
+    }`;
+
+  const labelClass = `block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`;
+  const sectionClass = `rounded-xl border p-6 ${isDarkMode ? 'bg-[#1a1a1a] border-[#2e2e2e]' : 'bg-white border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'}`;
+  const sectionTitleClass = `text-base font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`;
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa]">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-[#0f0f0f]' : 'bg-[#f8f9fa]'}`}>
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-6 py-4">
+      <header className={`border-b ${isDarkMode ? 'bg-[#1a1a1a] border-[#2e2e2e]' : 'bg-white border-gray-200'}`}>
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900">
+            <h1 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               {rule ? 'Edit Rule' : 'Create New Rule'}
             </h1>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+              className={`p-2 rounded-lg transition-all ${isDarkMode ? 'text-gray-400 hover:bg-[#262626]' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
             >
               <X size={20} />
             </button>
@@ -84,10 +92,10 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
+      <main className="max-w-4xl mx-auto px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Rule Name */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+          <div className={sectionClass}>
             <label className={labelClass}>Rule Name</label>
             <input
               type="text"
@@ -100,10 +108,10 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
           </div>
 
           {/* Email Configuration */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+          <div className={sectionClass}>
             <div className="flex items-center gap-2 mb-5">
-              <Mail className="text-gray-500" size={18} />
-              <h2 className="text-base font-semibold text-gray-900">Email Configuration</h2>
+              <Mail className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} size={18} />
+              <h2 className={sectionTitleClass}>Email Configuration</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -119,7 +127,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
               </div>
               <div>
                 <label className={labelClass}>
-                  App Password {rule && <span className="text-gray-400 font-normal">(leave blank to keep)</span>}
+                  App Password {rule && <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>(leave blank to keep)</span>}
                 </label>
                 <input
                   type="password"
@@ -153,16 +161,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
           </div>
 
           {/* Email Filters */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+          <div className={sectionClass}>
             <div className="flex items-center gap-2 mb-5">
-              <svg className="w-[18px] h-[18px] text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className={`w-[18px] h-[18px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              <h2 className="text-base font-semibold text-gray-900">Email Filters</h2>
+              <h2 className={sectionTitleClass}>Email Filters</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <label className={labelClass}>Subject Keywords <span className="text-gray-400 font-normal">(comma-separated)</span></label>
+                <label className={labelClass}>Subject Keywords <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>(comma-separated)</span></label>
                 <input
                   type="text"
                   value={formData.filterSubjects}
@@ -172,7 +180,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
                 />
               </div>
               <div>
-                <label className={labelClass}>Sender Emails <span className="text-gray-400 font-normal">(comma-separated)</span></label>
+                <label className={labelClass}>Sender Emails <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>(comma-separated)</span></label>
                 <input
                   type="text"
                   value={formData.filterSenders}
@@ -189,16 +197,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
                   onChange={(e) => setFormData({ ...formData, filterHours: parseInt(e.target.value) })}
                   className={inputClass}
                 />
-                <p className="text-xs text-gray-400 mt-1.5">Only process emails from the last N hours</p>
+                <p className={`text-xs mt-1.5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Only process emails from the last N hours</p>
               </div>
             </div>
           </div>
 
           {/* WhatsApp Configuration */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+          <div className={sectionClass}>
             <div className="flex items-center gap-2 mb-5">
-              <MessageSquare className="text-gray-500" size={18} />
-              <h2 className="text-base font-semibold text-gray-900">WhatsApp Configuration</h2>
+              <MessageSquare className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} size={18} />
+              <h2 className={sectionTitleClass}>WhatsApp Configuration</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -214,7 +222,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
               </div>
               <div>
                 <label className={labelClass}>
-                  Twilio Auth Token {rule && <span className="text-gray-400 font-normal">(leave blank to keep)</span>}
+                  Twilio Auth Token {rule && <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>(leave blank to keep)</span>}
                 </label>
                 <input
                   type="password"
@@ -251,10 +259,10 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
           </div>
 
           {/* Schedule */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6">
+          <div className={sectionClass}>
             <div className="flex items-center gap-2 mb-5">
-              <Clock className="text-gray-500" size={18} />
-              <h2 className="text-base font-semibold text-gray-900">Schedule</h2>
+              <Clock className={isDarkMode ? 'text-gray-400' : 'text-gray-500'} size={18} />
+              <h2 className={sectionTitleClass}>Schedule</h2>
             </div>
             <div>
               <label className={labelClass}>Cron Schedule</label>
@@ -265,7 +273,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
                 placeholder="*/10 * * * *"
                 className={inputClass}
               />
-              <p className="text-xs text-gray-400 mt-1.5">Default: Every 10 minutes (*/10 * * * *)</p>
+              <p className={`text-xs mt-1.5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Default: Every 10 minutes (*/10 * * * *)</p>
             </div>
           </div>
 
@@ -274,14 +282,20 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-gray-700 bg-white border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition-all text-sm"
+              className={`px-5 py-2.5 rounded-xl font-medium transition-all text-sm border ${isDarkMode
+                  ? 'bg-transparent border-[#3a3a3a] text-gray-300 hover:bg-[#262626]'
+                  : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 disabled:opacity-50 transition-all text-sm"
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium disabled:opacity-50 transition-all text-sm ${isDarkMode
+                  ? 'bg-white text-gray-900 hover:bg-gray-100'
+                  : 'bg-gray-900 text-white hover:bg-gray-800'
+                }`}
             >
               {loading ? (
                 <>
