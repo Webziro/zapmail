@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Power, Edit, Trash2, BarChart3 } from 'lucide-react';
+import { Plus, Power, Edit, Trash2, BarChart3, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { rulesAPI, logsAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import RuleForm from '../components/RuleForm';
@@ -31,6 +32,7 @@ const Dashboard: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingRule, setEditingRule] = useState<Rule | null>(null);
   const [showLogs, setShowLogs] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchRules();
@@ -91,6 +93,12 @@ const Dashboard: React.FC = () => {
     fetchStats();
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+    toast.success('Logged out successfully');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -121,6 +129,13 @@ const Dashboard: React.FC = () => {
             <p className="text-gray-600 mt-1">Manage your email forwarding rules</p>
           </div>
           <div className="flex gap-3">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            >
+              <LogOut size={20} />
+              Logout
+            </button>
             <button
               onClick={() => setShowLogs(true)}
               className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"

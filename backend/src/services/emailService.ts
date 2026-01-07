@@ -1,5 +1,5 @@
 import Imap from 'imap';
-import { simpleParser } from 'mailparser';
+import { simpleParser, ParsedMail } from 'mailparser';
 import { EmailConfig, EmailFilters, ParsedEmail } from '../types';
 
 export class EmailService {
@@ -23,7 +23,7 @@ export class EmailService {
       const emails: ParsedEmail[] = [];
 
       this.imap.once('ready', () => {
-        this.imap.openBox('INBOX', true, (err, box) => {
+        this.imap.openBox('INBOX', true, (err) => {
           if (err) {
             reject(err);
             return;
@@ -49,18 +49,13 @@ export class EmailService {
 
             fetch.on('message', (msg) => {
               msg.on('body', (stream) => {
-                simpleParser(stream, (parseErr, parsed) => {
-                  if (parseErr) {
-                    console.error('Error parsing email:', parseErr);
-                    return;
-                  }
-
+                simpleParser(stream as any).then((parsed: ParsedMail) => {
                   const email: ParsedEmail = {
                     subject: parsed.subject || 'No Subject',
                     from: parsed.from?.text || 'Unknown',
                     date: parsed.date || new Date(),
                     text: parsed.text || '',
-                    html: parsed.html || undefined,
+                    html: parsed.html as string || undefined,
                     attachments: parsed.attachments?.map(att => ({
                       filename: att.filename || 'unknown',
                       contentType: att.contentType || 'application/octet-stream',
@@ -72,6 +67,8 @@ export class EmailService {
                   if (this.matchesFilters(email)) {
                     emails.push(email);
                   }
+                }).catch((parseErr) => {
+                  console.error('Error parsing email:', parseErr);
                 });
               });
 

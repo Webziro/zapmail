@@ -17,9 +17,9 @@ router.post(
   [
     body('email').isEmail().normalizeEmail(),
     body('password').isLength({ min: 6 }),
-    body('name').trim().notEmpty(),  
+    body('name').trim().notEmpty(),
   ],
-  authController.register
+  authController.register.bind(authController)
 );
 
 router.post(
@@ -28,10 +28,10 @@ router.post(
     body('email').isEmail().normalizeEmail(),
     body('password').notEmpty(),
   ],
-  authController.login
+  authController.login.bind(authController)
 );
 
-router.get('/auth/profile', authMiddleware, authController.getProfile);
+router.get('/auth/profile', authMiddleware, authController.getProfile.bind(authController));
 
 // Forwarding Rules Routes
 router.post(

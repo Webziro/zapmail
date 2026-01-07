@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { validationResult } from 'express-validator';
-import { rateLimiter } from 'express-rate-limit';
 
 const prisma = new PrismaClient();
 
@@ -38,7 +37,7 @@ export class AuthController {
       const token = jwt.sign(
         { userId: user.id },
         process.env.JWT_SECRET!,
-        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+        { expiresIn: '7d' } as jwt.SignOptions
       );
 
       res.status(201).json({
@@ -56,7 +55,6 @@ export class AuthController {
     }
   }
 
-  //Apply rateLimiter middleware to login route
   async login(req: Request, res: Response) {
     try {
       const errors = validationResult(req);
@@ -69,12 +67,6 @@ export class AuthController {
       const user = await prisma.user.findUnique({
         where: { email },
       });
-
-      if(rateLimiter) {
-        return res.status(429).json({ error: 'Too many login attempts, please try again later.' });
-      }else{
-        rateLimiter;
-      }
 
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
@@ -89,7 +81,7 @@ export class AuthController {
       const token = jwt.sign(
         { userId: user.id },
         process.env.JWT_SECRET!,
-        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+        { expiresIn: '7d' } as jwt.SignOptions
       );
 
       res.json({
