@@ -4,9 +4,9 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function AppContent() {
-  const isAuthenticated = !!localStorage.getItem('token');
   const { isDarkMode } = useTheme();
 
   return (
@@ -27,7 +27,11 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route
           path="/dashboard"
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
         />
         <Route path="/" element={<Navigate to="/dashboard" />} />
       </Routes>

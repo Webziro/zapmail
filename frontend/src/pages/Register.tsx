@@ -23,6 +23,9 @@ const Register: React.FC = () => {
       toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (error: any) {
+      console.log('Registration Error:', error);
+      console.log('Response:', error.response);
+      console.log('Data:', error.response?.data);
       toast.error(error.response?.data?.error || 'Registration failed');
     } finally {
       setLoading(false);
@@ -31,8 +34,8 @@ const Register: React.FC = () => {
 
   // Increased padding (py-4, pl-14) to prevent icon overlap. Reduced icon size to 18.
   const inputStyles = `w-full pl-14 pr-4 py-4 rounded-xl transition-all focus:outline-none focus:ring-2 border ${isDarkMode
-      ? 'bg-[#262626] border-[#3a3a3a] text-white placeholder-gray-500 focus:ring-white/50'
-      : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-gray-900/20'
+    ? 'bg-[#262626] border-[#3a3a3a] text-white placeholder-gray-500 focus:ring-white/50'
+    : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-gray-900/20'
     }`;
 
   return (
@@ -41,8 +44,8 @@ const Register: React.FC = () => {
       <button
         onClick={toggleDarkMode}
         className={`fixed top-4 right-4 md:top-6 md:right-6 p-2.5 md:p-3 rounded-xl transition-all z-50 ${isDarkMode
-            ? 'bg-[#262626] text-white hover:bg-[#333]'
-            : 'bg-white text-gray-700 hover:bg-gray-100 shadow-lg'
+          ? 'bg-[#262626] text-white hover:bg-[#333]'
+          : 'bg-white text-gray-700 hover:bg-gray-100 shadow-lg'
           }`}
         aria-label="Toggle dark mode"
       >
@@ -76,8 +79,8 @@ const Register: React.FC = () => {
 
             {/* Form Card */}
             <div className={`rounded-2xl p-6 sm:p-8 ${isDarkMode
-                ? 'bg-[#1a1a1a] border border-[#2e2e2e]'
-                : 'bg-white shadow-xl border border-gray-100'
+              ? 'bg-[#1a1a1a] border border-[#2e2e2e]'
+              : 'bg-white shadow-xl border border-gray-100'
               }`}>
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 <div>
@@ -139,8 +142,8 @@ const Register: React.FC = () => {
                   type="submit"
                   disabled={loading}
                   className={`w-full py-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode
-                      ? 'bg-white text-gray-900 hover:bg-gray-100'
-                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                    ? 'bg-white text-gray-900 hover:bg-gray-100'
+                    : 'bg-gray-900 text-white hover:bg-gray-800'
                     }`}
                 >
                   {loading ? (
