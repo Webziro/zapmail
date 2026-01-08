@@ -28,8 +28,8 @@ const Login: React.FC = () => {
     }
   };
 
-  // Increased padding (py-4, pl-12) and adjusted border opacity
-  const inputStyles = `w-full pl-12 pr-4 py-4 rounded-xl transition-all focus:outline-none focus:ring-2 border ${isDarkMode
+  // Increased padding (py-4, pl-14) to prevent overlap. Reduced icon size to 18.
+  const inputStyles = `w-full pl-14 pr-4 py-4 rounded-xl transition-all focus:outline-none focus:ring-2 border ${isDarkMode
       ? 'bg-[#262626] border-[#3a3a3a] text-white placeholder-gray-500 focus:ring-white/50'
       : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-gray-900/20'
     }`;
@@ -115,8 +115,8 @@ const Login: React.FC = () => {
                     Email address
                   </label>
                   <div className="relative">
-                    {/* Icon position left-4, size 20 */}
-                    <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={20} />
+                    {/* Icon position left-4, size 18 */}
+                    <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={18} />
                     <input
                       type="email"
                       value={email}
@@ -133,7 +133,7 @@ const Login: React.FC = () => {
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={20} />
+                    <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={18} />
                     <input
                       type="password"
                       value={password}
@@ -164,7 +164,7 @@ const Login: React.FC = () => {
                   ) : (
                     <>
                       <span>Sign in</span>
-                      <ArrowRight size={20} />
+                      <ArrowRight size={18} />
                     </>
                   )}
                 </button>
