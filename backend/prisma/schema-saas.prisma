@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  TRIAL
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  name      String
+  
+  // Subscription
+  subscriptionTier    SubscriptionTier   @default(FREE)
+  subscriptionStatus  SubscriptionStatus @default(ACTIVE)
+  subscriptionEndsAt  DateTime?
+  messagesUsed        Int                @default(0)
+  messagesLimit       Int                @default(50) // 50 for free, -1 for unlimited
+  
+  // WhatsApp (User's number)
+  whatsappNumber      String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  forwardingRules ForwardingRule[]
+  logs            ForwardingLog[]
+  payments        Payment[]
+}
+
+model ForwardingRule {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name        String
+  isActive    Boolean  @default(true)
+  
+  // Email Configuration (User provides)
+  emailUser     String
+  emailPassword String  // Encrypted Gmail App Password
+  emailHost     String  @default("imap.gmail.com")
+  emailPort     Int     @default(993)
+  emailTls      Boolean @default(true)
+  
+  // Email Filters
+  filterSubjects String[] @default([])
+  filterSenders  String[] @default([])
+  filterHours    Int      @default(24)
+  
+  // Schedule
+  cronSchedule String @default("*/10 * * * *")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  logs ForwardingLog[]
+}
+
+model ForwardingLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  ruleId    String   @db.ObjectId
+  rule      ForwardingRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  
+  emailSubject String
+  emailFrom    String
+  emailDate    DateTime
+  
+  status       String   // 'success', 'failed', 'quota_exceeded'
+  error        String?
+  
+  createdAt    DateTime @default(now())
+}
+
+model Payment {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  amount          Float
+  currency        String   @default("USD")
+  status          String   // 'pending', 'completed', 'failed'
+  paymentMethod   String   // 'stripe', 'paypal', 'flutterwave'
+  transactionId   String?
+  
+  subscriptionTier SubscriptionTier
+  billingPeriod   String   // 'monthly', 'yearly'
+  
+  createdAt       DateTime @default(now())
+}
+
+model AdminSettings {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // Twilio Configuration (Admin's account)
+  twilioAccountSid String
+  twilioAuthToken  String  // Encrypted
+  whatsappSender   String  // Admin's Twilio WhatsApp number
+  
+  // Pricing
+  freeTierLimit    Int     @default(50)
+  premiumPrice     Float   @default(9.99)
+  
+  // Feature Flags
+  enablePayments   Boolean @default(false)
+  enableTrials     Boolean @default(true)
+  trialDays        Int     @default(7)
+  
+  updatedAt        DateTime @updatedAt
+}
