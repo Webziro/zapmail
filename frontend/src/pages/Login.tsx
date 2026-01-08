@@ -95,11 +95,11 @@ const Login: React.FC = () => {
             </div>
 
             {/* Header */}
-            <div className="text-center lg:text-left mb-6 sm:mb-8">
+            <div className="text-center lg:text-left mb-6 sm:mb-8 pl-5">
               <h2 className={`text-xl sm:text-2xl lg:text-3xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Welcome back
               </h2>
-              <p className={`mt-2 text-sm sm:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p className={`mt-2 text-sm sm:text-base ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} `}>
                 Sign in to your account to continue
               </p>
             </div>
@@ -112,9 +112,9 @@ const Login: React.FC = () => {
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Email address
+                   Email address
                   </label>
-                  <div className="relative">
+                  <div className="relative p-20 mb-20">
                     {/* Icon position left-4, size 18 */}
                     <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={18} />
                     <input
@@ -122,7 +122,7 @@ const Login: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className={inputStyles}
-                      placeholder="you@example.com"
+                      // placeholder="you@example.com"
                       required
                     />
                   </div>
@@ -133,13 +133,13 @@ const Login: React.FC = () => {
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={18} />
+                    <Lock className={`absolute left-4 top-1/2 -translate-y-1/2  ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} size={18} />
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className={inputStyles}
-                      placeholder="Enter your password"
+                      className={inputStyles} 
+                      // placeholder="Enter your password"
                       required
                     />
                   </div>

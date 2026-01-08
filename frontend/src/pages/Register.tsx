@@ -91,7 +91,7 @@ const Register: React.FC = () => {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className={inputStyles}
-                      placeholder="John Doe"
+                      // placeholder="John Doe"
                       required
                     />
                   </div>
@@ -108,7 +108,7 @@ const Register: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className={inputStyles}
-                      placeholder="you@example.com"
+                      // placeholder="you@example.com"
                       required
                     />
                   </div>
@@ -125,7 +125,7 @@ const Register: React.FC = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className={inputStyles}
-                      placeholder="Create a password"
+                      // placeholder="Create a password"
                       minLength={6}
                       required
                     />
