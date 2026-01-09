@@ -9,7 +9,7 @@ dotenv.config();
 
 const prisma = new PrismaClient();
 
-async function processRule(rule: any) {
+async function processRule(rule: any, adminSettings: any) {
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Processing rule: ${rule.name} (${rule.id})`);
   console.log(`User: ${rule.user.email}`);
@@ -17,6 +17,14 @@ async function processRule(rule: any) {
   console.log('='.repeat(60));
 
   try {
+    if (!adminSettings) {
+      throw new Error('Admin settings not found. Cannot process rules.');
+    }
+
+    if (!rule.user.whatsappNumber) {
+      throw new Error('User does not have a WhatsApp number configured.');
+    }
+
     const emailConfig = {
       user: rule.emailUser,
       password: decryptPassword(rule.emailPassword),
@@ -32,17 +40,17 @@ async function processRule(rule: any) {
     };
 
     const twilioConfig = {
-      accountSid: rule.twilioAccountSid,
-      authToken: decryptPassword(rule.twilioAuthToken),
-      senderPhone: rule.whatsappSender,
-      recipientPhone: rule.whatsappRecipient,
+      accountSid: adminSettings.twilioAccountSid,
+      authToken: decryptPassword(adminSettings.twilioAuthToken),
+      senderPhone: adminSettings.whatsappSender,
+      recipientPhone: rule.user.whatsappNumber,
     };
 
     const emailService = new EmailService(emailConfig, filters);
     const whatsappService = new WhatsAppService(twilioConfig);
 
     const emails = await emailService.fetchEmails();
-    
+
     if (emails.length === 0) {
       console.log('No emails to forward');
       return;
@@ -53,7 +61,7 @@ async function processRule(rule: any) {
     for (const email of emails) {
       try {
         await whatsappService.sendEmail(email);
-        
+
         await prisma.forwardingLog.create({
           data: {
             userId: rule.userId,
@@ -91,6 +99,8 @@ async function processRule(rule: any) {
 
 async function processAllRules() {
   try {
+    const adminSettings = await prisma.adminSettings.findFirst();
+
     const activeRules = await prisma.forwardingRule.findMany({
       where: { isActive: true },
       include: {
@@ -98,6 +108,7 @@ async function processAllRules() {
           select: {
             email: true,
             name: true,
+            whatsappNumber: true,
           },
         },
       },
@@ -111,7 +122,7 @@ async function processAllRules() {
     console.log(`\nProcessing ${activeRules.length} active rule(s)...`);
 
     for (const rule of activeRules) {
-      await processRule(rule);
+      await processRule(rule, adminSettings);
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
 
@@ -123,7 +134,7 @@ async function processAllRules() {
 
 function startWorker() {
   const schedule = process.env.WORKER_CRON_SCHEDULE || '*/5 * * * *';
-  
+
   console.log('='.repeat(60));
   console.log('Email to WhatsApp Forwarder - Background Worker');
   console.log('='.repeat(60));
