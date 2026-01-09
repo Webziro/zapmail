@@ -25,15 +25,15 @@ export class RulesController {
         filterSubjects,
         filterSenders,
         filterHours,
-        twilioAccountSid,
-        twilioAuthToken,
-        whatsappSender,
-        whatsappRecipient,
+        // twilioAccountSid,
+        // twilioAuthToken,
+        // whatsappSender,
+        // whatsappRecipient,
         cronSchedule,
       } = req.body;
 
       const encryptedEmailPassword = encryptPassword(emailPassword);
-      const encryptedTwilioToken = encryptPassword(twilioAuthToken);
+      // const encryptedTwilioToken = encryptPassword(twilioAuthToken);
 
       const rule = await prisma.forwardingRule.create({
         data: {
@@ -47,10 +47,10 @@ export class RulesController {
           filterSubjects: filterSubjects || [],
           filterSenders: filterSenders || [],
           filterHours: filterHours || 24,
-          twilioAccountSid,
-          twilioAuthToken: encryptedTwilioToken,
-          whatsappSender,
-          whatsappRecipient,
+          // twilioAccountSid,
+          // twilioAuthToken: encryptedTwilioToken,
+          // whatsappSender,
+          // whatsappRecipient,
           cronSchedule: cronSchedule || '*/10 * * * *',
           isActive: true,
         },
@@ -199,7 +199,7 @@ export class RulesController {
     return {
       ...sanitized,
       hasEmailPassword: !!emailPassword,
-      hasTwilioToken: !!twilioAuthToken,
+      // hasTwilioToken: !!twilioAuthToken,
     };
   }
 
@@ -207,7 +207,7 @@ export class RulesController {
     return {
       ...rule,
       emailPassword: decryptPassword(rule.emailPassword),
-      twilioAuthToken: decryptPassword(rule.twilioAuthToken),
+      // twilioAuthToken: decryptPassword(rule.twilioAuthToken),
     };
   }
 }

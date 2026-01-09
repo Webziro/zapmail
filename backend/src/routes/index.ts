@@ -41,10 +41,10 @@ router.post(
     body('name').trim().notEmpty(),
     body('emailUser').isEmail(),
     body('emailPassword').notEmpty(),
-    body('twilioAccountSid').notEmpty(),
-    body('twilioAuthToken').notEmpty(),
-    body('whatsappSender').notEmpty(),
-    body('whatsappRecipient').notEmpty(),
+    // body('twilioAccountSid').notEmpty(),
+    // body('twilioAuthToken').notEmpty(),
+    // body('whatsappSender').notEmpty(),
+    // body('whatsappRecipient').notEmpty(),
   ],
   rulesController.createRule.bind(rulesController)
 );

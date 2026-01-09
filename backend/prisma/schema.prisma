@@ -7,12 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+}
 
-  id String @id @default(uuid()) @map("_id")
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  TRIAL
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
   password  String
   name      String
+  
+  // Subscription
+  subscriptionTier    SubscriptionTier   @default(FREE)
+  subscriptionStatus  SubscriptionStatus @default(ACTIVE)
+  subscriptionEndsAt  DateTime?
+  messagesUsed        Int                @default(0)
+  messagesLimit       Int                @default(50)
+  
+  // WhatsApp (User's number)
+  whatsappNumber      String?
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -21,15 +43,14 @@ model User {
 }
 
 model ForwardingRule {
-  id String @id @default(uuid()) @map("_id")
-
-  userId      String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   name        String
   isActive    Boolean  @default(true)
   
-  // Email Configuration
+  // Email Configuration (User provides)
   emailUser     String
   emailPassword String
   emailHost     String  @default("imap.gmail.com")
@@ -41,12 +62,6 @@ model ForwardingRule {
   filterSenders  String[] @default([])
   filterHours    Int      @default(24)
   
-  // Twilio Configuration
-  twilioAccountSid String
-  twilioAuthToken  String
-  whatsappSender   String
-  whatsappRecipient String
-  
   // Schedule
   cronSchedule String @default("*/10 * * * *")
   
@@ -54,27 +69,22 @@ model ForwardingRule {
   updatedAt DateTime @updatedAt
   
   logs ForwardingLog[]
-  
-  @@index([userId, isActive])
 }
 
 model ForwardingLog {
-  id String @id @default(uuid()) @map("_id")
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  ruleId    String
+  ruleId    String   @db.ObjectId
   rule      ForwardingRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
   
   emailSubject String
   emailFrom    String
   emailDate    DateTime
   
-  status       String   // 'success', 'failed'
+  status       String
   error        String?
   
   createdAt    DateTime @default(now())
-  
-  @@index([userId, createdAt])
-  @@index([ruleId, createdAt])
 }
