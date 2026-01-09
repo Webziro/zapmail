@@ -77,7 +77,7 @@ export class WhatsAppService {
   }
 
   private formatEmailMessage(email: ParsedEmail): string {
-    const maxLength = 1500;
+    const maxLength = 1000;
     let message = `📧 *New Email*\n\n`;
     message += `*From:* ${email.from}\n`;
     message += `*Subject:* ${email.subject}\n`;

@@ -13,13 +13,13 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('Current directory:', process.cwd());
 
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const senderPhone = process.env.WHATSAPP_SENDER_PHONE;
+    const accountSid = process.env.ADMIN_TWILIO_ACCOUNT_SID;
+    const authToken = process.env.ADMIN_TWILIO_AUTH_TOKEN;
+    const senderPhone = process.env.ADMIN_WHATSAPP_SENDER;
 
-    console.log('Env check - TWILIO_ACCOUNT_SID present:', !!accountSid);
+    console.log('Env check - ADMIN_TWILIO_ACCOUNT_SID present:', !!accountSid);
     if (accountSid) {
-        console.log('Env check - TWILIO_ACCOUNT_SID value starts with:', accountSid.substring(0, 3));
+        console.log('Env check - ADMIN_TWILIO_ACCOUNT_SID value starts with:', accountSid.substring(0, 3));
     }
 
     if (!accountSid || !authToken || !senderPhone) {

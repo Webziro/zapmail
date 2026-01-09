@@ -30,7 +30,7 @@ model User {
   subscriptionStatus  SubscriptionStatus @default(ACTIVE)
   subscriptionEndsAt  DateTime?
   messagesUsed        Int                @default(0)
-  messagesLimit       Int                @default(50)
+  messagesLimit       Int                @default(50) // 50 for free, -1 for unlimited
   
   // WhatsApp (User's number)
   whatsappNumber      String?
@@ -40,6 +40,7 @@ model User {
   
   forwardingRules ForwardingRule[]
   logs            ForwardingLog[]
+  payments        Payment[]
 }
 
 model ForwardingRule {
@@ -52,7 +53,7 @@ model ForwardingRule {
   
   // Email Configuration (User provides)
   emailUser     String
-  emailPassword String
+  emailPassword String  // Encrypted Gmail App Password
   emailHost     String  @default("imap.gmail.com")
   emailPort     Int     @default(993)
   emailTls      Boolean @default(true)
@@ -83,8 +84,45 @@ model ForwardingLog {
   emailFrom    String
   emailDate    DateTime
   
-  status       String
+  status       String   // 'success', 'failed', 'quota_exceeded'
   error        String?
   
   createdAt    DateTime @default(now())
+}
+
+model Payment {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  amount          Float
+  currency        String   @default("USD")
+  status          String   // 'pending', 'completed', 'failed'
+  paymentMethod   String   // 'stripe', 'paypal', 'flutterwave'
+  transactionId   String?
+  
+  subscriptionTier SubscriptionTier
+  billingPeriod   String   // 'monthly', 'yearly'
+  
+  createdAt       DateTime @default(now())
+}
+
+model AdminSettings {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // Twilio Configuration (Admin's account)
+  twilioAccountSid String
+  twilioAuthToken  String  // Encrypted
+  whatsappSender   String  // Admin's Twilio WhatsApp number
+  
+  // Pricing
+  freeTierLimit    Int     @default(50)
+  premiumPrice     Float   @default(9.99)
+  
+  // Feature Flags
+  enablePayments   Boolean @default(false)
+  enableTrials     Boolean @default(true)
+  trialDays        Int     @default(7)
+  
+  updatedAt        DateTime @updatedAt
 }
